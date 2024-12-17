@@ -57,4 +57,23 @@ class PointControllerTest {
                 .andExpect(jsonPath("$.point").value(50))
                 .andExpect(jsonPath("$.updateMillis").value(nowTimeMillis));
     }
+
+    @DisplayName("특정 유저의 포인트 충전/이용 내역을 조회 한다.")
+    @Test
+    void getUserPointHistoryId () throws Exception{
+
+        // given
+        List<PointHistoryDomain> result = List.of();
+        given(pointService.findPointHistoryById(1)).willReturn(result);
+
+        // when // then
+        mockMvc.perform(
+                        get("/point/{id}/histories", 1)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+        ;
+    }
 }

@@ -2,6 +2,7 @@ package io.hhplus.tdd.point.controller;
 
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.UserPoint;
+import io.hhplus.tdd.point.domain.PointHistoryDomain;
 import io.hhplus.tdd.point.domain.UserPointDomain;
 import io.hhplus.tdd.point.service.PointService;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +35,10 @@ public class PointController {
      * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}/histories")
-    public List<PointHistory> history(
-            @PathVariable long id
+    public List<PointHistoryDomain> history(
+            @PathVariable(name = "id") long id
     ) {
-        return List.of();
+        return pointService.findPointHistoryById(id);
     }
 
     /**

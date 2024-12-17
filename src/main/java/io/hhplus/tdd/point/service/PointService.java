@@ -21,9 +21,17 @@ import static io.hhplus.tdd.point.domain.TransactionType.USE;
 public class PointService {
     private final UserPointRepository userPointRepository;
 
+    private final PointHistoryRepository pointHistoryRepository;
 
     public UserPointDomain findUserPointById (long id){
         return userPointRepository.findById(id).to();
+    }
+
+    public List<PointHistoryDomain> findPointHistoryById (long id){
+        List<PointHistory> allByUserId = pointHistoryRepository.getAllByUserId(id);
+        return allByUserId.stream()
+                .map(PointHistory::to)
+                .collect(Collectors.toList());
     }
 
 }

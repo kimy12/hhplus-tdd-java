@@ -32,4 +32,15 @@ class UserPointRepositoryTest  {
         assertThat(userPoint.point()).isEqualTo(40);
     }
 
+    @DisplayName("특정 유저의 아이디로 포인트를 충전한다.")
+    @Test
+    void createUserPointById (){
+        // given // where
+        UserPoint userPoint = userPointRepository.createUserPoint(1, 50);
+
+        // then
+        assertThat(userPoint.id()).isEqualTo(1);
+        assertThat(userPoint.point()).isEqualTo(50);
+    }
+
 }

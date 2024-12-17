@@ -32,4 +32,18 @@ public class UserPointDomain {
         this.updateMillis = System.currentTimeMillis();
         return this.point += mount;
     }
+
+    public boolean isPointLessThan(long mount){
+        return this.point < mount;
+    }
+
+    public long deductPoint (long mount){
+        if(isPointLessThan(mount)){
+            throw new IllegalArgumentException("차감할 포인트가 부족합니다.");
+        }
+        this.updateMillis = System.currentTimeMillis();
+        return this.point -=mount;
+    }
+
+
 }

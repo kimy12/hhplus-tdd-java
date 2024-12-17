@@ -20,8 +20,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -127,4 +126,48 @@ class PointControllerTest {
                 .andExpect(jsonPath("$.message").value("포인트는 양수값이 필수입니다."))
         ;
     }
+
+    @DisplayName("특정 유저의 포인트 충전/이용 내역을 조회 한다.")
+    @Test
+    void usePoint () throws Exception{
+
+        // given
+        long id = 1;
+        RequestDto request = RequestDto.builder()
+                .amount(50)
+                .build();
+
+        // when // then
+        mockMvc.perform(
+                        patch("/point/{id}/use", id)
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("포인트를 충전 할때는 충전할 포인트가 양수여야 한다.")
+    @Test
+    void usePointWithoutMount () throws Exception{
+
+        // given
+        long id = 1;
+        RequestDto request = RequestDto.builder()
+                .amount(-2)
+                .build();
+
+
+        // when // then
+        mockMvc.perform(
+                        patch("/point/{id}/use", id)
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.message").value("포인트는 양수값이 필수입니다."));
+    }
+
 }

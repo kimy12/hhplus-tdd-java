@@ -36,4 +36,33 @@ class UserPointDomainTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("최대 포인트를 넘었습니다.");
     }
+
+    @DisplayName("사용하려는 포인트가 존재하는 포인트보다 작다.")
+    @Test
+    void isAmountLessThen(){
+        //given
+        long nowTimeMillis = System.currentTimeMillis();
+        UserPointDomain createUserPoint = new UserPointDomain(1, 100, nowTimeMillis);
+        long mount = 50;
+
+        //when
+        boolean result = createUserPoint.isPointLessThan(mount);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("사용하려는 포인트가 존재하는 포인트보다 크면, 예외가 발생한다.")
+    @Test
+    void usePoint(){
+        //given
+        long nowTimeMillis = System.currentTimeMillis();
+        UserPointDomain createUserPoint = new UserPointDomain(1, 100, nowTimeMillis);
+        long mount = 150;
+
+        //when //then
+        assertThatThrownBy(()->createUserPoint.deductPoint(mount))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("차감할 포인트가 부족합니다.");
+    }
 }

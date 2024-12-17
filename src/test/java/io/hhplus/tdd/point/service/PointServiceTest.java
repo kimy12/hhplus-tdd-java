@@ -79,4 +79,43 @@ class PointServiceTest {
                 );
     }
 
+    @DisplayName("포인트를 사용한다.")
+    @Test
+    void usePoints () {
+        // given
+        UserPoint userPointInfo = userPointRepository.createUserPoint(3, 100);
+        RequestDto userPointInfoDto = RequestDto.builder()
+                .amount(50)
+                .build();
+
+        // when
+        UserPointDomain result = pointService.useUserPoints(3, userPointInfoDto);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(3);
+        assertThat(result.getPoint()).isEqualTo(50);
+    }
+
+    @DisplayName("포인트를 사용하면 히스토리 테이블에 정보를 저장한다.")
+    @Test
+    void getAllHistoryInfoAfterUse () {
+        // given
+        UserPoint userPointInfo = userPointRepository.createUserPoint(4, 100);
+        RequestDto userPointInfoDto = RequestDto.builder()
+                .amount(40)
+                .build();
+        UserPointDomain result = pointService.useUserPoints(4, userPointInfoDto);
+
+        // when
+        List<PointHistory> allHistoryById = pointHistoryRepository.getAllByUserId(4);
+
+        // then
+        assertThat(allHistoryById).hasSize(1)
+                .extracting("userId","amount","type")
+                .containsExactlyInAnyOrder(
+                        tuple(4L,40L,USE)
+                );
+    }
+
 }

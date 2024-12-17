@@ -42,4 +42,13 @@ public class PointService {
         return userPointDomain;
     }
 
+    public UserPointDomain useUserPoints (long id, RequestDto requestDto){
+        UserPointDomain userPointInfo = userPointRepository.findById(id).to();
+        long deductPoints = userPointInfo.deductPoint(requestDto.getAmount());
+        UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, deductPoints).to();
+        pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), USE, userPointDomain.getUpdateMillis());
+        return userPointDomain;
+    }
+
+
 }

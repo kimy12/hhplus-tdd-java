@@ -17,4 +17,19 @@ public class UserPointDomain {
         this.point = point;
         this.updateMillis = updateMillis;
     }
+
+    public boolean isOverMax (long mount){
+        long maxPoint = 10000000;
+        long currentPoints = this.point;
+        currentPoints += mount;
+        return currentPoints > maxPoint;
+    }
+
+    public long addPoints(long mount) {
+        if(isOverMax(mount)){
+            throw new IllegalArgumentException("최대 포인트를 넘었습니다.");
+        }
+        this.updateMillis = System.currentTimeMillis();
+        return this.point += mount;
+    }
 }

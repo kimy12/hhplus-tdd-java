@@ -39,4 +39,22 @@ class PointHistoryRepositoryTest {
                 );
     }
 
+    @DisplayName("특정 유저의 아이디로 포인트의 히스토리가 저장된다.")
+    @Test
+    void createPointHistory (){
+        // given
+        long userId = 1;
+        long amount = 50;
+        TransactionType type = TransactionType.CHARGE;
+        long currentTimeMillis = System.currentTimeMillis();
+
+        // where
+        PointHistory pointHistory = pointHistoryRepository.createPointHistory(userId, amount, type, currentTimeMillis);
+
+        // then
+        assertThat(pointHistory.userId()).isEqualTo(userId);
+        assertThat(pointHistory.amount()).isEqualTo(amount);
+        assertThat(pointHistory.type()).isNotNull();
+        assertThat(pointHistory.updateMillis()).isEqualTo(currentTimeMillis);
+    }
 }

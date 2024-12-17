@@ -2,9 +2,11 @@ package io.hhplus.tdd.point.controller;
 
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.UserPoint;
+import io.hhplus.tdd.point.controller.dto.RequestDto;
 import io.hhplus.tdd.point.domain.PointHistoryDomain;
 import io.hhplus.tdd.point.domain.UserPointDomain;
 import io.hhplus.tdd.point.service.PointService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +47,11 @@ public class PointController {
      * TODO - 특정 유저의 포인트를 충전하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/charge")
-    public UserPoint charge(
-            @PathVariable long id,
-            @RequestBody long amount
+    public UserPointDomain charge(
+            @PathVariable(name = "id") long id,
+            @Valid @RequestBody RequestDto requestDto
     ) {
-        return new UserPoint(0, 0, 0);
+        return pointService.createUserPoints(id, requestDto);
     }
 
     /**
@@ -62,4 +64,6 @@ public class PointController {
     ) {
         return new UserPoint(0, 0, 0);
     }
+
+
 }

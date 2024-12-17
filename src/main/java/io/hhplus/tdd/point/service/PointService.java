@@ -34,4 +34,12 @@ public class PointService {
                 .collect(Collectors.toList());
     }
 
+    public UserPointDomain createUserPoints (long id, RequestDto requestDto) {
+        UserPointDomain userPointInfo = userPointRepository.findById(id).to();
+        long addPoints = userPointInfo.addPoints(requestDto.getAmount());
+        UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, addPoints).to();
+        pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), CHARGE, userPointDomain.getUpdateMillis());
+        return userPointDomain;
+    }
+
 }

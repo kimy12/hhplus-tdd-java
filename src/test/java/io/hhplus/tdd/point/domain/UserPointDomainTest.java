@@ -28,7 +28,7 @@ class UserPointDomainTest {
     void chargeOverMaxPoints (){
         //given
         long nowTimeMillis = System.currentTimeMillis();
-        UserPointDomain createUserPoint = new UserPointDomain(1, 100, nowTimeMillis);
+        UserPointDomain createUserPoint = new UserPointDomain(1, 1, nowTimeMillis);
         long mount = 10000000;
 
         //when //then
@@ -58,7 +58,7 @@ class UserPointDomainTest {
         //given
         long nowTimeMillis = System.currentTimeMillis();
         UserPointDomain createUserPoint = new UserPointDomain(1, 100, nowTimeMillis);
-        long mount = 150;
+        long mount = 101;
 
         //when //then
         assertThatThrownBy(()->createUserPoint.deductPoint(mount))

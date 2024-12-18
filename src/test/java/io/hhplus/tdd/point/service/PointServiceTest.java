@@ -103,11 +103,10 @@ class PointServiceTest {
         assertThat(result.getPoint()).isEqualTo(expectedPoints);
     }
 
-    @DisplayName("포인트를 충전하면 히스토리 테이블에 정보를 저장한다.")
+    @DisplayName("특정 유저의 포인트를 조회한다.")
     @Test
-    void getAllHistoryInfoAfterCharge () {
+    void findUserPointById () {
         // given
-        UserPoint userPointInfo = userPointRepository.createUserPoint(2, 50);
         RequestDto userPointInfoDto = RequestDto.builder()
                 .amount(50)
                 .build();
@@ -115,13 +114,52 @@ class PointServiceTest {
         UserPointDomain result = pointService.createUserPoints(2, userPointInfoDto);
 
         // when
-        List<PointHistory> allHistoryById = pointHistoryRepository.getAllByUserId(2);
+        UserPoint userPoint = userPointRepository.findById(2);
+
+        // then
+        assertThat(userPoint.id()).isEqualTo(2);
+        assertThat(userPoint.point()).isEqualTo(50);
+    }
+
+    @DisplayName("특정 유저의 아이디로 포인트의 히스토리를 조회한다.")
+    @Test
+    void findUserHistoryPointById (){
+        // given
+        PointHistory pointHistory1 = pointHistoryRepository.createPointHistory(1, 50, TransactionType.CHARGE, System.currentTimeMillis());
+        PointHistory pointHistory2 = pointHistoryRepository.createPointHistory(1, 30, TransactionType.CHARGE, System.currentTimeMillis());
+        PointHistory pointHistory3 = pointHistoryRepository.createPointHistory(1, 10, TransactionType.CHARGE, System.currentTimeMillis());
+
+        // where
+        List<PointHistoryDomain> pointHistoryById = pointService.findPointHistoryById(1);
+
+        // then
+        assertThat(pointHistoryById).hasSize(3)
+                .extracting("userId", "amount","type")
+                .containsExactlyInAnyOrder(
+                        tuple(1L, 50L, TransactionType.CHARGE),
+                        tuple(1L, 30L, TransactionType.CHARGE),
+                        tuple(1L, 10L, TransactionType.CHARGE)
+                );
+    }
+
+    @DisplayName("포인트를 충전하면 히스토리 테이블에 정보를 저장한다.")
+    @Test
+    void getAllHistoryInfoAfterCharge () {
+        // given
+        RequestDto userPointInfoDto = RequestDto.builder()
+                .amount(50)
+                .build();
+
+        UserPointDomain result = pointService.createUserPoints(5, userPointInfoDto);
+
+        // when
+        List<PointHistory> allHistoryById = pointHistoryRepository.getAllByUserId(5);
 
         // then
         assertThat(allHistoryById).hasSize(1)
                 .extracting("userId","amount","type")
                 .containsExactlyInAnyOrder(
-                        tuple(2L,50L,CHARGE)
+                        tuple(5L,50L,CHARGE)
                 );
     }
 

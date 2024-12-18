@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static io.hhplus.tdd.point.domain.TransactionType.CHARGE;
@@ -22,6 +24,9 @@ public class PointService {
     private final UserPointRepository userPointRepository;
 
     private final PointHistoryRepository pointHistoryRepository;
+
+    private final ConcurrentHashMap<Long, ReentrantLock> locks = new ConcurrentHashMap<>();
+
 
     public UserPointDomain findUserPointById (long id){
         return userPointRepository.findById(id).to();
@@ -35,20 +40,35 @@ public class PointService {
     }
 
     public UserPointDomain createUserPoints (long id, RequestDto requestDto) {
-        UserPointDomain userPointInfo = userPointRepository.findById(id).to();
-        long addPoints = userPointInfo.addPoints(requestDto.getAmount());
-        UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, addPoints).to();
-        pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), CHARGE, userPointDomain.getUpdateMillis());
-        return userPointDomain;
+
+        ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock(true));
+        lock.lock();
+        try {
+            UserPointDomain userPointInfo = userPointRepository.findById(id).to();
+            long addPoints = userPointInfo.addPoints(requestDto.getAmount());
+            UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, addPoints).to();
+            pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), CHARGE, userPointDomain.getUpdateMillis());
+            return userPointDomain;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public UserPointDomain useUserPoints (long id, RequestDto requestDto){
-        UserPointDomain userPointInfo = userPointRepository.findById(id).to();
-        long deductPoints = userPointInfo.deductPoint(requestDto.getAmount());
-        UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, deductPoints).to();
-        pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), USE, userPointDomain.getUpdateMillis());
-        return userPointDomain;
+
+        ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock(true));
+        lock.lock();
+        try {
+            UserPointDomain userPointInfo = userPointRepository.findById(id).to();
+            long deductPoints = userPointInfo.deductPoint(requestDto.getAmount());
+            UserPointDomain userPointDomain = userPointRepository.createUserPoint(id, deductPoints).to();
+            pointHistoryRepository.createPointHistory(id, requestDto.getAmount(), USE, userPointDomain.getUpdateMillis());
+            return userPointDomain;
+        } finally {
+            lock.unlock();
+        }
     }
+
 
 
 }

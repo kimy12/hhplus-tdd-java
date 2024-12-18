@@ -11,14 +11,14 @@ import io.hhplus.tdd.point.repository.PointHistoryRepository;
 import io.hhplus.tdd.point.repository.UserPointRepository;
 import org.assertj.core.groups.Tuple;
 import org.junit.After;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static io.hhplus.tdd.point.domain.TransactionType.CHARGE;
 import static io.hhplus.tdd.point.domain.TransactionType.USE;
@@ -38,23 +38,69 @@ class PointServiceTest {
     @Autowired
     private PointHistoryRepository pointHistoryRepository;
 
-
-    @DisplayName("포인트를 충전한다.")
+    @DisplayName("포인트를 충전한다. : 동시성 테스트")
     @Test
-    void addPoint () {
-        // given
-        UserPoint userPointInfo = userPointRepository.createUserPoint(1, 50);
-        RequestDto userPointInfoDto = RequestDto.builder()
+    void concurrentAddPoint () throws InterruptedException {
+        // Given
+        long userId = 1L;
+        RequestDto requestDto = RequestDto.builder()
                 .amount(50)
-                .build();
+                .build(); // 요청 포인트: 50
+        int threadCount = 100; // 100개의 스레드가 동시에 요청
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(threadCount);
 
-        // when
-        UserPointDomain result = pointService.createUserPoints(1, userPointInfoDto);
+        // When
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    pointService.createUserPoints(userId, requestDto);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
 
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1);
-        assertThat(result.getPoint()).isEqualTo(100);
+        latch.await();
+
+        // Then
+        UserPointDomain result = userPointRepository.findById(userId).to();
+        long expectedPoints = 5000; // 50포인트 * 100 스레드
+        assertThat(result.getPoint()).isEqualTo(expectedPoints);
+    }
+
+    @DisplayName("포인트를 사용한다. : 동시성 테스트")
+    @Test
+    void concurrentUsePoint () throws InterruptedException {
+        // Given
+        long userId = 2L;
+        RequestDto requestDto = RequestDto.builder()
+                .amount(2)
+                .build(); // 요청 포인트: 50
+
+        UserPoint currentUserPoint = userPointRepository.createUserPoint(userId, 1000);
+
+        int threadCount = 100; // 100개의 스레드가 동시에 요청
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        // When
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                try {
+                    pointService.useUserPoints(userId, requestDto);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // Then
+        UserPointDomain result = userPointRepository.findById(userId).to();
+        long expectedPoints = 800;
+        assertThat(result.getPoint()).isEqualTo(expectedPoints);
     }
 
     @DisplayName("포인트를 충전하면 히스토리 테이블에 정보를 저장한다.")
@@ -79,24 +125,6 @@ class PointServiceTest {
                 );
     }
 
-    @DisplayName("포인트를 사용한다.")
-    @Test
-    void usePoints () {
-        // given
-        UserPoint userPointInfo = userPointRepository.createUserPoint(3, 100);
-        RequestDto userPointInfoDto = RequestDto.builder()
-                .amount(50)
-                .build();
-
-        // when
-        UserPointDomain result = pointService.useUserPoints(3, userPointInfoDto);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(3);
-        assertThat(result.getPoint()).isEqualTo(50);
-    }
-
     @DisplayName("포인트를 사용하면 히스토리 테이블에 정보를 저장한다.")
     @Test
     void getAllHistoryInfoAfterUse () {
@@ -117,5 +145,6 @@ class PointServiceTest {
                         tuple(4L,40L,USE)
                 );
     }
+
 
 }

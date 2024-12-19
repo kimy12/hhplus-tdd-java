@@ -42,7 +42,7 @@ class PointServiceTest {
     @Test
     void concurrentAddPoint () throws InterruptedException {
         // Given
-        long userId = 1L;
+        long userId = 10L;
         RequestDto requestDto = RequestDto.builder()
                 .amount(50)
                 .build(); // 요청 포인트: 50
@@ -65,15 +65,18 @@ class PointServiceTest {
 
         // Then
         UserPointDomain result = userPointRepository.findById(userId).to();
+        List<PointHistory> getHistory = pointHistoryRepository.getAllByUserId(userId);
+
         long expectedPoints = 5000; // 50포인트 * 100 스레드
         assertThat(result.getPoint()).isEqualTo(expectedPoints);
+        assertThat(getHistory).hasSize(threadCount);
     }
 
     @DisplayName("포인트를 사용한다. : 동시성 테스트")
     @Test
     void concurrentUsePoint () throws InterruptedException {
         // Given
-        long userId = 2L;
+        long userId = 11L;
         RequestDto requestDto = RequestDto.builder()
                 .amount(2)
                 .build(); // 요청 포인트: 50
@@ -101,6 +104,8 @@ class PointServiceTest {
         UserPointDomain result = userPointRepository.findById(userId).to();
         long expectedPoints = 800;
         assertThat(result.getPoint()).isEqualTo(expectedPoints);
+        List<PointHistory> getHistory = pointHistoryRepository.getAllByUserId(userId);
+        assertThat(getHistory).hasSize(threadCount);
     }
 
     @DisplayName("특정 유저의 포인트를 조회한다.")

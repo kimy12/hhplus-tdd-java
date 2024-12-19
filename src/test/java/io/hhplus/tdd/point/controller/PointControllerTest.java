@@ -25,6 +25,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * 1. Controller에는 다른 로직이 존재 하지 않고(권한 등의 내용), return 값만 존재합니다.
+ * 그래서 요청 값과 return 값에 대해 집중 하여 테스트 코드를 작성 하였습니다.
+ * 통합테스트를 완료한 service에 대해서는 mockBean 처리 하였습니다.
+ * 2. PATCH : 사용자가 요청한 값이 음수일 경우 예외가 발생하는지 테스트 코드를 작성하였습니다.
+ */
 @WebMvcTest(PointController.class)
 @ExtendWith(MockitoExtension.class)
 class PointControllerTest {

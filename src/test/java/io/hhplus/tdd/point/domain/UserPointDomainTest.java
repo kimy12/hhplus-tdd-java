@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * 1. 서비스 로직의 복잡도가 높아질 것같아, DDD 로 개발하여 domain 객체에 연산 로직을 포함하여 해당 부분에 대해 단위테스트를 진행했습니다.
+ * 2. 최대 포인트 정책 / 가지고 있는 포인트 보다 사용하려는 포인트가 클 경우 관련 예외가 발생하는지에 대해 테스트 코드를 작성했습니다.
+ */
 class UserPointDomainTest {
 
     @DisplayName("포인트를 충전한다.")

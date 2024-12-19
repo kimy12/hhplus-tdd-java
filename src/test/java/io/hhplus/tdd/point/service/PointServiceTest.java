@@ -26,6 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * 1. repository를 주입 받아 통합테스트를 작성하였습니다.
+ * 2. 읽고 쓰는 로직 등이 함께 포함 되어 있는 로직의 경우, 동시성을 고려하여 테스트 코드를 작성하였습니다.
+ */
 @SpringBootTest
 class PointServiceTest {
 

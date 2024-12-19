@@ -1,7 +1,5 @@
 package io.hhplus.tdd.point.controller;
 
-import io.hhplus.tdd.point.PointHistory;
-import io.hhplus.tdd.point.UserPoint;
 import io.hhplus.tdd.point.controller.dto.RequestDto;
 import io.hhplus.tdd.point.domain.PointHistoryDomain;
 import io.hhplus.tdd.point.domain.UserPointDomain;

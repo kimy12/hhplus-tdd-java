@@ -1,8 +1,6 @@
 package io.hhplus.tdd.point.controller.dto;
 
-import io.hhplus.tdd.point.UserPoint;
 import io.hhplus.tdd.point.domain.TransactionType;
-import io.hhplus.tdd.point.domain.UserPointDomain;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Getter;
